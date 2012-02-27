@@ -41,7 +41,7 @@ function main()
 		},
 		printMarkers : function()
 		{
-			var circle, latlng, color, tohex;
+			var circle, latlng, color, tohex, cbounds;
 
 			$('#map_canvas').ajaxComplete(function()
 			{
@@ -51,7 +51,6 @@ function main()
 						tohex = obj[city][3].toHex();
 						color = '#00'+tohex+"00";
 						latlng = new google.maps.LatLng( obj[city][0], obj[city][1] );
-						//console.log( obj[city][2] );
 						circle = new google.maps.Circle({
 							map: Cities.map,
 							radius: obj[city][3] * 100 * 3,// 3000 km
@@ -60,7 +59,18 @@ function main()
 							fillOpacity: obj[city][2] / 100,
 							strokeColor: color,
 							strokeOpacity: obj[city][2] / 100,
-							strokeWeight: 1	
+							strokeWeight: 1,
+							zIndex: -1	
+						});
+						
+						label = new MapLabel({
+							text: obj[city][2].toString(),
+							position: latlng,
+							map: Cities.map,
+							fontSize: 11,
+							strokeWeight : 1,
+							fontColor: '#000000',
+							zIndex: 200000
 						});
 					}
 				});
