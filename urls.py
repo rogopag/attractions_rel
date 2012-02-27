@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import patterns, include, url
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -6,6 +7,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
 	url(r'^ajax', 'attractions_rel.sample.views.ajax', name="ajax"),
+	url(r'^cities', 'attractions_rel.views.cities', name="ajax"),
 	url(r'^$', 'attractions_rel.views.home', name='home'),
 	# url(r'^attractions/', include('attractions.foo.urls')),
 
@@ -15,3 +17,5 @@ urlpatterns = patterns('',
 	# Uncomment the next line to enable the admin:
 	url(r'^admin/', include(admin.site.urls)),
 )
+
+urlpatterns += staticfiles_urlpatterns()
