@@ -80,3 +80,15 @@ settings.pyc
 __init__.pyc
 
 sample/scripts/bounds.pyc
+
+models.pyc
+
+static/js/polymaps/Makefile
+
+static/js/polymaps/LICENSE
+
+static/js/polymaps/README.mkd
+
+static/js/polymaps/examples/bing/map.html
+
+static/js/polymaps/examples/bing/map.js
