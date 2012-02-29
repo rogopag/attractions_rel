@@ -51,9 +51,9 @@ function main()
 						tohex = obj[city][3].toHex();
 						color = '#00'+tohex+"00";
 						latlng = new google.maps.LatLng( obj[city][0], obj[city][1] );
-						circle = new google.maps.Circle({
+						/*circle = new google.maps.Circle({
 							map: Cities.map,
-							radius: obj[city][3] * 100 * 3,// 3000 km
+							radius: obj[city][3] * 100 * 5,// 3000 km
 							center: latlng,
 							fillColor: color,
 							fillOpacity: obj[city][2] / 100,
@@ -61,15 +61,15 @@ function main()
 							strokeOpacity: obj[city][2] / 100,
 							strokeWeight: 1,
 							zIndex: -1	
-						});
+						});*/
 						
 						label = new MapLabel({
-							text: obj[city][2].toString(),
+							text: obj[city][3].toString(),
 							position: latlng,
 							map: Cities.map,
-							fontSize: 11,
+							fontSize: 24,
 							strokeWeight : 1,
-							fontColor: '#000000',
+							fontColor: '#'+tohex+'0000',
 							zIndex: 200000
 						});
 					}
