@@ -1,20 +1,12 @@
 # Django settings for attractions project.
 import os
 #Celery / Redis configuration
-BROKER_HOST = "localhost"
-BROKER_BACKEND="redis"
-REDIS_PORT=6379
-REDIS_HOST = "localhost"
-BROKER_USER = ""
-BROKER_PASSWORD =""
-BROKER_VHOST = "0"
-REDIS_DB = 0
-REDIS_CONNECT_RETRY = True
-CELERY_SEND_EVENTS=True
-CELERY_RESULT_BACKEND='redis'
-CELERY_TASK_RESULT_EXPIRES =  10
-CELERYBEAT_SCHEDULER="djcelery.schedulers.DatabaseScheduler"
-CELERY_ALWAYS_EAGER=True
+BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis"
+CELERY_REDIS_HOST = "localhost"
+CELERY_REDIS_PORT = 6379
+CELERY_REDIS_DB = 0
+CELERY_IMPORTS = ("sample.tasks.stream", )
 
 import djcelery
 djcelery.setup_loader()
@@ -38,7 +30,15 @@ DATABASES = {
         'PASSWORD': 'hotrats',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }
+    },
+	'tweets' : {
+		'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'attraction',                      # Or path to database file if using sqlite3.
+        'USER': 'root',                      # Not used with sqlite3.
+        'PASSWORD': 'hotrats',                  # Not used with sqlite3.
+        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',
+	}
 }
 
 
