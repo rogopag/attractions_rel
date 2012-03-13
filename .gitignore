@@ -88,3 +88,7 @@ models.pyc
 static/js/polymaps/README.mkd
 
 static/js/polymaps/Makefile
+
+sample/tasks/stream.pyc
+
+tasks.pyc
