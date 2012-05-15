@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
 import os, sys; sys.path.insert(0, os.path.join("..", ".."))
+import httplib
+import threading
+import urllib
 import tweepy
-import webbrowser
+from time import sleep
+from socket import timeout
 from pprint import pprint
 from tweepy.utils import import_simplejson
+from django.db import models
+#from tweepy.api import API
 
 json = import_simplejson()
 
@@ -40,16 +46,60 @@ auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 # webbrowser.open(auth_url)
 # verifier = raw_input('PIN: ').strip()
 # auth.get_access_token(verifier)
-results = []
+
+# A Custom thread to run our Looop
+class thread_looper(threading.Thread):
+	def __init__ (self, interval, function, args=[], kwargs={}):
+		threading.Thread.__init__(self)
+		self.interval = interval
+		self.function = function
+		self.args = args
+		self.kwargs = kwargs
+		self.finished = threading.Event()
+	def stop (self):
+		self.finished.set()
+		self.join()
+	def run (self):
+		while not self.finished.isSet():
+			self.finished.wait(self.interval)
+			self.function(*self.args, **self.kwargs)
+
+class TweetStream(tweepy.streaming.Stream):
+	thread = None
+	
+	def __init__(self, auth, listener, **options):
+		self.thread = thread_looper( 0.1, self._run )
+		super(TweetStream, self).__init__(auth, listener, **options)
+	
+	def _start(self, async):
+		self.running = True
+		if async:
+			self.thread.start()
+		else:
+			self._run()
+			
+	def stop(self):
+		self.running = False
+		try:
+			self.thread.stop()
+		except AttributeError, e:
+			print "Exeption raised %s" % e
 
 class CustomStreamListener(tweepy.StreamListener):
+	
+	results = []
+	
 	def on_status(self, status):
 		
 		# We'll simply print some values in a tab-delimited format
 		# suitable for capturing to a flat file but you could opt 
 		# store them elsewhere, retweet select statuses, etc.
 		try:
-			results.append([status.id, status.user.screen_name, status.text, status.created_at, status.user.screen_name, status.user.location, status.user.name, status.user.time_zone, status.created_at, status.place])
+			self.results.append([status.id, status.user.screen_name, status.text, status.created_at, status.user.location, status.user.name, status.user.time_zone, status.place])
+			StreamManage.counter += 1
+			#print "Executed Call to twitter number %s" % StreamManage.counter
+			pprint(self.results)
+			return StreamManage.results
 		except Exception, e:
 			print >> sys.stderr, 'Encountered Exception:', e
 			pass
@@ -62,31 +112,41 @@ class CustomStreamListener(tweepy.StreamListener):
 		print >> sys.stderr, 'Timeout...'
 		return True # Don't kill the stream
 
-def stream( coords = {} ):
-	# Create a streaming API and set a timeout value of 60 seconds.
-	try:
-		stop = coords['stop']
-		raise SystemExit('stop collecting and exit')
-	except KeyError:
-		print 'Start collecting'
+class StreamManage(object):
 	
-	try:
-		LOCATIONS = coords['sw'][1], coords['sw'][0], coords['ne'][1], coords['ne'][0]
-		#print LOCATIONS
-	except:
-		#default to Turin area 15miles radius
-		LOCATIONS = 7.40888682759915, 44.806386501450021, 8.0660042459720618, 45.50071940788586
-		#8print LOCATIONS
+	streaming_api = None
+	
+	def __init__(self):
+		# Create a streaming API and set a timeout value of 60 seconds.
+		if( self.streaming_api == None ):
+			StreamManage.results = []
+			StreamManage.counter = 0
+			self.streaming_api = TweetStream(auth, CustomStreamListener(), timeout=120)
+			print "StreamManage ::: Instantiated obj for first time " + str( self.streaming_api )
+		else:
+			pass
+			#print "Obj already instantiated " + str( self.streaming_api )
 		
-	streaming_api = tweepy.streaming.Stream(auth, CustomStreamListener(), timeout=120)
-
-	# Optionally filter the statuses you want to track by providing a list
-	# of users to "follow".
-
-	#print >> sys.stderr, 'Filtering the public timeline for "%s"' % (' '.join(sys.argv[1:]),)
-
-	streaming_api.filter( follow=None, track=Q, locations=LOCATIONS)
-	return results
 	
-if __name__ == '__main__':
-	stream()
+	def stream( self, coords = {}, obj = None ):
+		try:
+			stop = coords['stop']
+			print "StreamManage ::: Stop collecting"
+			print "StreamManage ::: obj %s" % obj + " type %s" % type(obj)
+			obj.stop()
+			return self.streaming_api
+		except KeyError, e:			
+			print  'StreamManage ::: Start collecting %s' % e
+		try:
+			LOCATIONS = coords['sw'][1], coords['sw'][0], coords['ne'][1], coords['ne'][0]
+		except:
+			#default to Turin area 15miles radius
+			LOCATIONS = 7.40888682759915, 44.806386501450021, 8.0660042459720618, 45.50071940788586
+			#8print LOCATIONS
+
+			# Optionally filter the statuses you want to track by providing a list
+			# of users to "follow".
+
+		#print >> sys.stderr, 'Filtering the public timeline for "%s"' % (' '.join(sys.argv[1:]),
+		self.streaming_api.filter( follow=None, track=Q, async=True, locations=LOCATIONS)
+		return self.streaming_api

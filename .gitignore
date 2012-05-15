@@ -80,3 +80,15 @@ settings.pyc
 __init__.pyc
 
 sample/scripts/bounds.pyc
+
+sample/tasks/add.pyc
+
+models.pyc
+
+static/js/polymaps/README.mkd
+
+static/js/polymaps/Makefile
+
+sample/tasks/stream.pyc
+
+tasks.pyc
