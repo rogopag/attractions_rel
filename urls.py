@@ -7,6 +7,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
 	url(r'^ajax', AjaxView.as_view(), name="ajax"),
 	url(r'^$', 'attractions_rel.views.home', name='home'),
+	url(r'^cities', 'attractions_rel.views.cities', name='cities'),
 	# url(r'^attractions/', include('attractions.foo.urls')),
 
 	# Uncomment the admin/doc line below to enable admin documentation:
