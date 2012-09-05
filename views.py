@@ -8,6 +8,7 @@ from collections import defaultdict
 import csv
 #import datetime
 from pprint import pprint
+from django.views.decorators.csrf import csrf_exempt
 
 def home(request):
 	t = loader.get_template(ROOT_PATH+'/templates/index.html')
@@ -17,6 +18,7 @@ def home(request):
 	return HttpResponse(t.render(c))
 	
 
+@csrf_exempt
 def cities(request):
 	if request.is_ajax():
 		if request.method == 'GET':
